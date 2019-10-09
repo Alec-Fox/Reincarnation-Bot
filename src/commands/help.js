@@ -15,7 +15,7 @@ module.exports = {
 		} = message.client;
 		if (!args.length) {
 			data.push('Here\'s a list of all the commands:\n');
-			data.push(commands.map(command => command.name).join(` \n${message.client.config.prefix}`));
+			data.push(commands.map(command => command.name).join(' \n'));
 			data.push(`\nYou can send \`${message.client.config.prefix}help [command name]\` to get info on a specific command!`);
 			const embed = constructEmbed(data[0], data.splice(1), null, null);
 			return message.channel.send(embed)

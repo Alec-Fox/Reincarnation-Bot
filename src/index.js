@@ -14,6 +14,12 @@ const client = new AlecClient({
     prefix: process.env.DISCORD_PREFIX,
 });
 const u = require('./util/utilities.js');
+const {
+    maybeCreateMemberData,
+} = require('./util/utilities.js');
+const memberdata = require('./data/memberdata.json');
+const MembersInfo = require('./struct/MembersInfo.js');
+
 const commandFiles = readdirSync(join(__dirname, 'commands')).filter(file => file.endsWith('.js'));
 for (const file of commandFiles) {
     const command = require(join(__dirname, 'commands', `${file}`));
@@ -22,6 +28,15 @@ for (const file of commandFiles) {
 
 client.once('ready', () => {
     console.log(`${client.user.username} READY!`);
+    // eslint-disable-next-line no-unused-vars
+    function generateAllMembersInfo(member, memberId, allMembersInfoMap) {
+        maybeCreateMemberData(memberId);
+        Object.assign(client.memberinfo, { [memberId]: new MembersInfo(memberdata[memberId]) });
+        client.memberinfo[memberId].name = member.displayName;
+    }
+    const guild = client.guilds.first();
+    const allMembersInfoMap = guild.members;
+    allMembersInfoMap.forEach(generateAllMembersInfo);
 });
 
 

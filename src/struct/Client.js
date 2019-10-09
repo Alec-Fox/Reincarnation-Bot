@@ -21,5 +21,7 @@ module.exports = class extends Client {
 		this.config = config;
 
 		this.info = info;
+
+		this.memberinfo = {};
 	}
 };

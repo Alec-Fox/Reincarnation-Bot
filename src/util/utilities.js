@@ -4,7 +4,9 @@ const {
 } = require('discord.js');
 const {
     SUGGESTIONS_CHANNEL_ID,
+    NEW_MEMBER_DATA,
 } = require('./constants.js');
+const memberdata = require('../data/memberdata.json');
 
 /**
  * Returns an embed object.
@@ -40,6 +42,12 @@ exports.getRand = (min, max) => {
     min = Math.ceil(min);
     max = Math.floor(max);
     return Math.floor((Math.random() * max) + min);
+};
+
+exports.maybeCreateMemberData = (userID) => {
+    if (memberdata[userID]) return;
+    memberdata[userID] = Object.assign({}, NEW_MEMBER_DATA);
+    this.exportJson(memberdata, 'memberdata');
 };
 
 /**
