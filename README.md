@@ -1,7 +1,7 @@
 # Reincarnation-Bot
 
 ------------
-[Update Log](https://github.com/Alec-Fox/Reincarnation-Bot/blob/master/CHANGELOG.md)
+[Update Log](https://github.com/Alec-Fox/Reincarnation-Bot/blob/master/CHANGELOG.md)<br />
 Discord bot with the following commands:<br />
 1. Moderator Commands
       + .warn <`@member`> <`reason`> - `Gives a warning to a member for <reason>`
