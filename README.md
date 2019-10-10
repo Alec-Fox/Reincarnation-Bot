@@ -1,4 +1,4 @@
-# Reincarnation-Bot
+# Reincarnation-Bot [![Codacy Badge](https://api.codacy.com/project/badge/Grade/96fe42df9a1a4057aecdc3f5e1ad3b52)](https://www.codacy.com/manual/alecfox8/Reincarnation-Bot?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Alec-Fox/Reincarnation-Bot&amp;utm_campaign=Badge_Grade)
 
 ------------
 [Update Log](https://github.com/Alec-Fox/Reincarnation-Bot/blob/master/CHANGELOG.md)<br />
