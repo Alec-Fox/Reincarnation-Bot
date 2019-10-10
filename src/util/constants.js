@@ -4,6 +4,7 @@ module.exports = {
     BOT_CHANNEL_ID: '',
     BOT_CATEGORY_ID: '',
     GUILD_ID: '',
+    MOD_ROLE_ID: '631566640277880872',
     DEV_ID: '162434234357645312',
     SUGGESTIONS_CHANNEL_ID: '631088127972474880',
     MAP: 'https://i.imgur.com/kDIh5uF.png',

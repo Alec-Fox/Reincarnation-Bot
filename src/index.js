@@ -49,7 +49,7 @@ client.on('message', message => {
     if (!command) return;
     if (command.args && !args.length) {
         message.delete();
-        let reply = `You didn't provide any arguments, ${message.author}!`;
+        let reply = `You didn't provide the correct arguments, ${message.author}!`;
         if (command.usage) reply += `\nThe proper usage would be: \`${client.config.prefix}${command.name} ${command.usage}\``;
         return message.channel.send(reply);
     }
@@ -77,6 +77,11 @@ client.on('message', message => {
         console.error(error);
         message.reply('there was an error trying to execute that command!');
     }
+});
+client.on('guildMemberAdd', (member) => {
+    maybeCreateMemberData(member.id);
+    Object.assign(client.memberinfo, { [member.id]: new MembersInfo(memberdata[member.id]) });
+    client.memberinfo[member.id].name = member.displayName;
 });
 client.on('error', (error) => {
     console.error(error);

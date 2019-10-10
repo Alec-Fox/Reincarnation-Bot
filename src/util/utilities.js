@@ -16,12 +16,13 @@ const memberdata = require('../data/memberdata.json');
  * @param {string} image - image URL for the embed.
  * @param {Array} fields - Array of objects for the embed fields.
  */
-exports.constructEmbed = (title, description, image, fields) => {
+exports.constructEmbed = (title, description, image, fields, thumbnail) => {
     const embed = new RichEmbed()
         .setColor(3021383)
         .setTitle(title)
         .setDescription(description)
-        .setImage(image);
+        .setImage(image)
+        .setThumbnail(thumbnail);
 
     if (fields) {
         for (let i = 0; i < fields.length; i++) {

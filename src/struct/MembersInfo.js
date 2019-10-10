@@ -9,16 +9,16 @@ module.exports = class MemberInfo {
     }
     giveWarning(message, reason) {
         this.warnings++;
-        this.warningreasons = this.warningreasons.concat(reason);
-        const embed = constructEmbed(`${this.name}, you received a warning!`, reason, null, null);
+        this.warningreasons = this.warningreasons.concat(`${message.member.displayName} issued a WARNING:\n*${reason}*  (${new Date().toLocaleString()})`);
+        const embed = constructEmbed(`${this.name}, you received a warning.`, `Reason: ${reason}`, null, null);
         exportJson(message.client.memberinfo, 'memberdata');
         return message.channel.send(embed);
     }
-    displayWarnings(message) {
+    displayWarnings(message, member) {
         let reasons = '';
         let n = 1;
         this.warningreasons.forEach(function(reason) {
-            reasons += `[${n++}]${reason}\n`;
+            reasons += `**[${n++}]** ${reason}\n`;
         });
         const embedFields = [];
         embedFields.push({
@@ -35,14 +35,14 @@ module.exports = class MemberInfo {
             img: null,
             inline: false,
         });
-        const embed = constructEmbed(`${this.name}, you have ${this.warnings} warnings!`, reasons, null, embedFields);
+        const embed = constructEmbed(`${this.name}'s Warnings (${this.warnings}):`, reasons, null, embedFields, member.user.displayAvatarURL);
         exportJson(message.client.memberinfo, 'memberdata');
         return message.channel.send(embed);
 
     }
     async mute(message, specifiedMember, mutetime, reason) {
         this.mutecount++;
-        this.mutehistory = this.mutehistory.concat(`${message.member.displayName} issued a Mute for ${ms(ms(mutetime))} beacuse of ${reason} on ${new Date().toLocaleString()}.`);
+        this.mutehistory = this.mutehistory.concat(`**[${this.mutecount}]** ${message.member.displayName} issued a MUTE: \nDuration: ${ms(ms(mutetime))} - *${reason}* (${new Date().toLocaleString()})`);
         let muterole = message.guild.roles.find(role => role.name === 'muted');
         if (!muterole) {
             try {
@@ -76,7 +76,7 @@ module.exports = class MemberInfo {
             }, ms(mutetime));
         }
         catch(e) {
-            message.reply('Invalid mute duration.');
+            console.log(e.stack);
         }
         exportJson(message.client.memberinfo, 'memberdata');
     }

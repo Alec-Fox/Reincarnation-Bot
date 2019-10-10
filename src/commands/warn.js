@@ -1,17 +1,25 @@
 const {
 	constructEmbed,
 } = require('../util/utilities.js');
+const {
+	MOD_ROLE_ID,
+} = require('../util/constants.js');
 module.exports = {
 	name: 'warn',
 	description: 'Gives a member a warning [Mod use only]',
 	usage: '[@member] [warning reason]',
+	args: true,
 	cooldown: 5,
 	execute(message, args) {
 		message.delete();
+		if(message.member.highestRole.comparePositionTo(message.guild.roles.find(role => role.id === MOD_ROLE_ID)) < 0) return message.reply('You are not authorized to use this command.');
 		const specifiedMember = message.mentions.members.first();
-		if (!specifiedMember || args[0] != specifiedMember) return message.reply('You did not submit a valid member to warn.');
+		if (!specifiedMember || args[0] != specifiedMember) {
+			const embed = constructEmbed(`\nYou did not specify a valid member. The proper usage would be: \`${message.client.config.prefix}${this.name} ${this.usage}\``, '', null, null);
+			return message.channel.send(embed);
+		}
 		if (args.length < 2) {
-			const embed = constructEmbed('You did not provide a reason for the warning.', '', null, null);
+			const embed = constructEmbed(`\nInvalid command structure. The proper usage would be: \`${message.client.config.prefix}${this.name} ${this.usage}\``, '', null, null);
 			return message.channel.send(embed);
 		}
 		const reasonsArray = args.splice(1, args.length);
