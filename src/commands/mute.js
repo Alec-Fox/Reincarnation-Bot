@@ -7,7 +7,7 @@ const {
 module.exports = {
 	name: 'mute',
 	description: 'Mutes a member [Mod use only]',
-	usage: '[@member] [duration] [reason]',
+	usage: '[@member] [duration] [reason] \n [duration] format: `[[number][s/m/h/d/w/y]]`\n `s`: secs, `m`: mins, `h`:hrs, `d`:days, `w`:weeks, `y`:years',
 	args: true,
 	cooldown: 5,
 	execute(message, args) {
