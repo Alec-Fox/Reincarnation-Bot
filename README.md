@@ -21,9 +21,9 @@ Discord bot with the following commands:<br />
       
       + .reincarnations - `Displays the Reincarnation tree.`
       
-      + .ranks <dungeon_name> - `Displays the fastest dungeon time for <dungeon_name>.`
+      + .ranks <`dungeon_name`> - `Displays the fastest dungeon time for <dungeon_name>.`
       
-      + .ranks <dungeon_name> [qty]- `Displays the fastest dungeon time for <dungeon_name> with [qty] players (qty = 1-6).`
+      + .ranks <`dungeon_name`> <`qty`> - `Displays the fastest dungeon time for dungeon with X amount of players`
       
 
       
