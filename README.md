@@ -23,7 +23,7 @@ Discord bot with the following commands:<br />
       
       + .ranks <`dungeon_name`> - `Displays the fastest dungeon time for <dungeon_name>.`
       
-      + .ranks <`dungeon_name`> <`qty`> - `Displays the fastest dungeon time for dungeon with X amount of players`
+      + .ranks <`dungeon_name`> <`qty`> - `Displays the fastest dungeon time for dungeon with X players`
       
 
       
