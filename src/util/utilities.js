@@ -51,6 +51,14 @@ exports.maybeCreateMemberData = (userID) => {
     this.exportJson(memberdata, 'memberdata');
 };
 
+exports.formatDungeonName = (string) => {
+    let dungeonName = string.replace('_', ' ');
+   return dungeonName = dungeonName.toLowerCase()
+    .split(' ')
+    .map((s) => s.charAt(0).toUpperCase() + s.substring(1))
+    .join(' ');
+
+};
 /**
  * writes content to specified file.
  *
