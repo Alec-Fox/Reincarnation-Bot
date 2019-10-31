@@ -2,6 +2,9 @@ const Jimp = require("jimp");
 const rp = require('request-promise');
 const c = require('../util/constants.js')
 const {
+    steamLookup
+} = require('../util/utilities.js');
+const {
     formatDungeonName,
 } = require('../util/utilities.js');
 module.exports = {
@@ -37,7 +40,7 @@ module.exports = {
         const dungeonName = args[0];
 
         //Determins parameters for dungeon quantity
-        if(!c.DUNGEON_NAMES.includes(dungeonName)) return message.reply('Invalid dungeon name.');
+        if (!c.DUNGEON_NAMES.includes(dungeonName)) return message.reply('Invalid dungeon name.');
         switch (args[1]) {
             case '1':
                 dungQty = '&num_heroes=1';
@@ -85,20 +88,6 @@ module.exports = {
             }
         }
 
-        /**API request options for Dungeon Top 10
-         * 
-         * @param {array} steamIds - Steam Id3s of players
-         */
-        steamLookup = steamIds => {
-            return {
-                uri: `http://kobe42.pythonanywhere.com/steam/profile?steamId=${steamIds}`,
-                headers: {
-                    'User-Agent': 'Request-Promise'
-                },
-                json: true,
-            }
-        }
-
         rp(determineReqOptions(dungeonName))
             .then(function (apiResponse) {
                 const data = apiResponse
@@ -109,9 +98,8 @@ module.exports = {
                 let jimpFonts = [];
                 steamIds = [];
                 playerNames = [];
-                const dungTime = Math.round(highScore.TimeTaken * 1000) / 1000
+                const dungTime = Math.round(highScore.TimeTaken * 1000) / 1000;
                 highScore.Players.forEach(player => steamIds.push(player.account_id));
-
                 rp(steamLookup(JSON.stringify(steamIds)))
                     .then(function (steamData) {
                         steamData.forEach(steamPlayer => (playerNames.push(steamPlayer.personaname)));
@@ -129,7 +117,6 @@ module.exports = {
                                             33, {
                                                 text: formatDungeonName(dungeonName),
                                                 alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER,
-                                                alignmentY: Jimp.HORIZONTAL_ALIGN_CENTE,
                                             },
                                             640,
                                             400
@@ -137,10 +124,9 @@ module.exports = {
                                         loadedImage.print( //prints dungeon name onto template image
                                             fonts[1],
                                             1,
-                                            130, {
+                                            273, { //old y = 130
                                                 text: `${dungTime.toString()} secs`,
                                                 alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER,
-                                                alignmentY: Jimp.HORIZONTAL_ALIGN_CENTE,
                                             },
                                             640,
                                             400
@@ -156,15 +142,23 @@ module.exports = {
                                             Promise.all(jimps).then((data) => {
                                                 return Promise.all(jimps);
                                             }).then((data) => {
-                                                xPosition = 14;
+                                                let xPosition = 0;
                                                 let iu = 0;
                                                 baseImage = data[0];
                                                 heroImages = data.splice(1);
+                                                const startXpos = (316.5 - ((96.25 * playerNames.length) / 2))
                                                 heroImages.forEach((jimpPromises) => {
                                                     jimpPromises.resize(87, 50);
-                                                    baseImage.composite(jimpPromises, xPosition, 197);
-                                                    baseImage.print(fonts[2], xPosition, 265, playerNames[iu].toString());
+                                                    baseImage.composite(jimpPromises, (startXpos + xPosition), 160); // old y - 227
+                                                    baseImage.print(
+                                                        fonts[2],
+                                                        startXpos + xPosition + ((87 - (playerNames[iu].length * 8.7)) / 2),
+                                                        218, //old y = 285 
+                                                        {
+                                                            text: playerNames[iu].toString(),
+                                                        });
                                                     iu++;
+                                                    tester = 0;
                                                     xPosition += 100;
                                                 });
                                                 baseImage.write('C:/Users/Alec PC/Documents/GitHub/Reincarnation/Reincarnation-Bot/src/data/images/templates/templatenew.png', () => {
@@ -178,7 +172,6 @@ module.exports = {
                                     });
                             })
                     });
-
             })
             .catch((err) => {
                 console.error(err);

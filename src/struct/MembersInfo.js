@@ -7,6 +7,12 @@ module.exports = class MemberInfo {
     constructor(data) {
         Object.keys(data).forEach(key => this[key] = data[key]);
     }
+    setSteamId(message, args) {
+        this.steamid = args[0];
+        const embed = constructEmbed(`${this.name}, your steam ID has been set: ${args[0]}`, '', null, null);
+        exportJson(message.client.memberinfo, 'memberdata');
+        return message.channel.send(embed);
+    }
     giveWarning(message, reason) {
         this.warnings++;
         this.warningreasons = this.warningreasons.concat(`${message.member.displayName} issued a WARNING:\n*${reason}*  (${new Date().toLocaleString()})`);
@@ -36,6 +42,7 @@ module.exports = class MemberInfo {
             inline: false,
         });
         const embed = constructEmbed(`${this.name}'s Warnings (${this.warnings}):`, reasons, null, embedFields, member.user.displayAvatarURL);
+        embed.setFooter(`Steam ID: ${this.steamid}`);
         exportJson(message.client.memberinfo, 'memberdata');
         return message.channel.send(embed);
 

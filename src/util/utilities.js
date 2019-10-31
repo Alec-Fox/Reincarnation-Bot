@@ -1,3 +1,4 @@
+/* eslint-disable brace-style */
 const fs = require('fs');
 const {
     RichEmbed,
@@ -33,6 +34,20 @@ exports.constructEmbed = (title, description, image, fields, thumbnail) => {
 
 };
 
+/** API request options for Dungeon Top 10
+ *
+ * @param {array} steamIds - Steam Id3s of players
+ */
+exports.steamLookup = steamIds => {
+    return {
+        uri: `http://kobe42.pythonanywhere.com/steam/profile?steamId=${steamIds}`,
+        headers: {
+            'User-Agent': 'Request-Promise',
+        },
+        json: true,
+    };
+};
+
 /**
  * Returns a random number between min and max.
  *
@@ -53,10 +68,10 @@ exports.maybeCreateMemberData = (userID) => {
 
 exports.formatDungeonName = (string) => {
     let dungeonName = string.replace('_', ' ');
-   return dungeonName = dungeonName.toLowerCase()
-    .split(' ')
-    .map((s) => s.charAt(0).toUpperCase() + s.substring(1))
-    .join(' ');
+    return dungeonName = dungeonName.toLowerCase()
+        .split(' ')
+        .map((s) => s.charAt(0).toUpperCase() + s.substring(1))
+        .join(' ');
 
 };
 /**
@@ -81,23 +96,22 @@ exports.decideUser = (message, specifiedMember) => {
 };
 
 exports.persistSuggestions = (message) => {
-    if(message.channel.id !== SUGGESTIONS_CHANNEL_ID || message.author.bot) return;
+    if (message.channel.id !== SUGGESTIONS_CHANNEL_ID || message.author.bot) return;
     message.react('👍')
-    .then(() => message.react('👎'))
-    .then(() => message.react('❌'))
-    .catch(() => console.error('One of the emojis failed to react.'));
-    if(message.client.info.last_suggestion_message !== '') {
+        .then(() => message.react('👎'))
+        .then(() => message.react('❌'))
+        .catch(() => console.error('One of the emojis failed to react.'));
+    if (message.client.info.last_suggestion_message !== '') {
         try {
             message.client.info.last_suggestion_message.delete();
-        }
-        catch (error) {
+        } catch (error) {
             console.log(error);
         }
     }
     const embed = this.constructEmbed('Read pinned messages for instructions on how to post in the suggestions channel', '');
     message.channel.send(embed)
-    .then((msg => message.client.info.last_suggestion_message = msg))
-    .catch(error => {
-        console.log(error);
-    });
+        .then((msg => message.client.info.last_suggestion_message = msg))
+        .catch(error => {
+            console.log(error);
+        });
 };
