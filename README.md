@@ -25,6 +25,10 @@ Discord bot with the following commands:<br />
       
       + .ranks <`dungeon_name`> <`qty`> - `Displays the fastest dungeon time for dungeon with X players`
       
+      + .setsteamid <`steam ID`> - `Sets your steam ID for discord`
+      
+      + .myhighscore  - `Displays the fastest dungeon time for all dungeons for your set steam ID.`
+      
 
       
 1. Other Features
