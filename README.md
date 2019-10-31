@@ -21,6 +21,12 @@ Discord bot with the following commands:<br />
       
       + .reincarnations - `Displays the Reincarnation tree.`
       
+      + .ranks <`dungeon_name`> - `Displays the fastest dungeon time for <dungeon_name>.`
+      
+      + .ranks <`dungeon_name`> <`qty`> - `Displays the fastest dungeon time for dungeon with X players`
+      
+
+      
 1. Other Features
       + Adds reactions to all messages sent in #suggestions channel.
       + Persists a message at the bottom of #suggestions channel.
