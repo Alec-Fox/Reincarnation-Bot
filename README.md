@@ -7,6 +7,8 @@ Discord bot with the following commands:<br />
       + .warn <`@member`> <`reason`> - `Gives a warning to a member for <reason>`
       
       + .mute <`@member`> <`duration`> <`reason`> - `Mutes a member for <duration> because of <reason>.`
+      
+      + .mod - `Displays list of Mod commands.`
 
 1. Commands
       + .help - `Displays list of commands.`
@@ -34,5 +36,6 @@ Discord bot with the following commands:<br />
 1. Other Features
       + Adds reactions to all messages sent in #suggestions channel.
       + Persists a message at the bottom of #suggestions channel.
+      + Logs all commands to logging channel
 
 ------------
