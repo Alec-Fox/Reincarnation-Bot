@@ -11,6 +11,7 @@ module.exports = {
     name: 'myhighscores',
     description: 'Displays  your personal best records for all dungeons.',
     cooldown: 5,
+    modOnly: false,
     execute(message) {
         message.delete();
         let dungNumber = 0;
@@ -37,8 +38,8 @@ module.exports = {
                         const dungTime = Math.round(highScore.TimeTaken * 1000) / 1000;
                         embed.addField(formatDungeonName(dungeon), `${dungTime} secs.`, true);
                     }
-                    if (dungNumber == 19) message.channel.send(embed);
-                        dungNumber++;
+                    dungNumber++;
+                    if (dungNumber === 19) message.channel.send(embed);
 
                 })
                 .catch((err) => {

@@ -1,13 +1,14 @@
-/* eslint-disable brace-style */
-const fs = require('fs');
 const {
     RichEmbed,
 } = require('discord.js');
 const {
     SUGGESTIONS_CHANNEL_ID,
-    NEW_MEMBER_DATA,
 } = require('./constants.js');
-const memberdata = require('../data/memberdata.json');
+const MemberInfo = require('../struct/MembersInfo.js');
+
+const mongoose = require('mongoose');
+const MemberData = require('../data/models/memberdata.js');
+const SuggestionData = require('../data/models/suggestionsdata.js');
 
 /**
  * Returns an embed object.
@@ -60,12 +61,6 @@ exports.getRand = (min, max) => {
     return Math.floor((Math.random() * max) + min);
 };
 
-exports.maybeCreateMemberData = (userID) => {
-    if (memberdata[userID]) return;
-    memberdata[userID] = Object.assign({}, NEW_MEMBER_DATA);
-    this.exportJson(memberdata, 'memberdata');
-};
-
 exports.formatDungeonName = (string) => {
     let dungeonName = string.replace('_', ' ');
     return dungeonName = dungeonName.toLowerCase()
@@ -73,15 +68,6 @@ exports.formatDungeonName = (string) => {
         .map((s) => s.charAt(0).toUpperCase() + s.substring(1))
         .join(' ');
 
-};
-/**
- * writes content to specified file.
- *
- * @param {object} content - Content to be exported to file.
- * @param {string} filename - Filename to save to.
- */
-exports.exportJson = (content, fileName) => {
-    fs.writeFileSync(`./src/data/${fileName}.json`, JSON.stringify(content));
 };
 
 /**
@@ -95,6 +81,53 @@ exports.decideUser = (message, specifiedMember) => {
     return userID;
 };
 
+const allCompleteCallback = () => {
+    console.log('MemberInfo Class builds complete');
+};
+let classesCreated = 0;
+
+exports.getAllGuildMembers = async (guild) => {
+    mongoose.connect(`mongodb+srv://alec_fox:${process.env.MONOGOBD_PW}@cluster0-q40w5.mongodb.net/Reincarnation?retryWrites=true&w=majority`, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false });
+    const allMembers = await guild.fetchMembers();
+    function generateAllMembersInfo(member, memberId, allMembersInfoMap) {
+        MemberData.findById(memberId).lean().exec(function(err, foundMember) {
+            if(err) console.log(err);
+            if(!foundMember) {
+                const newMemberData = new MemberData({
+                    _id: memberId,
+                    userId: memberId,
+                    name: member.displayName,
+                    warnings: 0,
+                    warningreasons: [],
+                    mutecount: 0,
+                    mutehistory: ['\u200B'],
+                    steamid: '',
+                });
+                newMemberData.save()
+                .then(newMember => Object.assign(guild.client.memberinfo, { [memberId]: new MemberInfo(newMember._doc) }))
+                    .catch(err => console.log(err));
+            }
+            else {
+                Object.assign(guild.client.memberinfo, { [memberId]: new MemberInfo(foundMember) });
+            }
+        });
+        classesCreated++;
+        if (classesCreated === allMembersInfoMap.size) {
+            allCompleteCallback();
+        }
+    }
+    const allMembersInfoMap = allMembers.members;
+    console.log(`Building ${allMembersInfoMap.size} MemberInfo classes`);
+    allMembersInfoMap.forEach(generateAllMembersInfo);
+};
+
+exports.getLastSuggestionMessageOnRestart = async (client) => {
+    SuggestionData.findById('suggestionMessage').lean().exec(function(err, suggestionMessage) {
+        if(err) console.log(err);
+        client.channels.get(SUGGESTIONS_CHANNEL_ID).fetchMessage(suggestionMessage.messageId).then(lastSuggestionMessage => client.info.last_suggestion_message = lastSuggestionMessage);
+    });
+};
+
 exports.persistSuggestions = (message) => {
     if (message.channel.id !== SUGGESTIONS_CHANNEL_ID || message.author.bot) return;
     message.react('👍')
@@ -104,13 +137,17 @@ exports.persistSuggestions = (message) => {
     if (message.client.info.last_suggestion_message !== '') {
         try {
             message.client.info.last_suggestion_message.delete();
-        } catch (error) {
+        }
+        catch (error) {
             console.log(error);
         }
     }
     const embed = this.constructEmbed('Read pinned messages for instructions on how to post in the suggestions channel', '');
     message.channel.send(embed)
-        .then((msg => message.client.info.last_suggestion_message = msg))
+        .then((msg) => {
+            message.client.info.last_suggestion_message = msg;
+            SuggestionData.findByIdAndUpdate('suggestionMessage', { messageId: msg.id }, { upsert : true }).then(()=> console.log('added suggestion ID to database'));
+        })
         .catch(error => {
             console.log(error);
         });

@@ -1,22 +1,26 @@
 const {
 	constructEmbed,
 } = require('../util/utilities.js');
+const {
+    MODERATOR_CHANNEL_ID,
+} = require('../util/constants.js');
 module.exports = {
-	name: 'help',
-	description: 'List all of my commands or info about a specific command.',
+	name: 'mod',
+	description: 'List all of my commands or info about a specific Moderator command.',
 	aliases: ['commands'],
 	usage: '[command name]',
 	cooldown: 5,
-	modOnly: false,
+	modOnly: true,
 	execute(message, args) {
-		message.delete();
+        message.delete();
+        if(message.channel.id != MODERATOR_CHANNEL_ID) return;
 		const data = [];
 		const {
 			commands,
 		} = message.client;
-		const userCommands = commands.filter(command => command.modOnly === false);
+		const userCommands = commands.filter(command => command.modOnly === true);
 		if (!args.length) {
-			data.push('Here\'s a list of all the commands:\n');
+			data.push('Here\'s a list of all the Moderator commands:\n');
 			data.push(userCommands.map(command => command.name).join(' \n'));
 			data.push(`\nYou can send \`${message.client.config.prefix}help [command name]\` to get info on a specific command!`);
 			const embed = constructEmbed(data[0], data.splice(1), null, null);

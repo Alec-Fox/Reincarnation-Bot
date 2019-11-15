@@ -10,6 +10,7 @@ module.exports = {
 	usage: '[@member] [warning reason]',
 	args: true,
 	cooldown: 5,
+	modOnly: true,
 	execute(message, args) {
 		message.delete();
 		if(message.member.highestRole.comparePositionTo(message.guild.roles.find(role => role.id === MOD_ROLE_ID)) < 0) return message.reply('You are not authorized to use this command.');

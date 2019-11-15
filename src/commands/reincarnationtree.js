@@ -10,6 +10,7 @@ module.exports = {
 	aliases: ['reincarnation', 'tree'],
 	usage: '',
 	cooldown: 5,
+	modOnly: false,
 	execute(message) {
 		message.delete();
 		const embed = constructEmbed('', '', REINCARNATIONS, null);

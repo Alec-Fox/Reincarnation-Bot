@@ -10,6 +10,7 @@ module.exports = {
 	aliases: ['nodes', 'ore', 'ores', 'mine'],
 	usage: '',
 	cooldown: 5,
+	modOnly: false,
 	execute(message) {
 		message.delete();
 		const embed = constructEmbed('', '', MINING_NODES, null);

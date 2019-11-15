@@ -1,23 +1,38 @@
 const {
-    constructEmbed,
-    exportJson,
-} = require('../util/utilities.js');
+    RichEmbed,
+} = require('discord.js');
 const ms = require('ms');
+const MemberData = require('../data/models/memberdata.js');
+const MuteData = require('../data/models/mutedata.js');
 module.exports = class MemberInfo {
     constructor(data) {
         Object.keys(data).forEach(key => this[key] = data[key]);
     }
+    constructEmbed(title, description, image, fields, thumbnail) {
+        const embed = new RichEmbed()
+            .setColor(3021383)
+            .setTitle(title)
+            .setDescription(description)
+            .setImage(image)
+            .setThumbnail(thumbnail);
+        if (fields) {
+            for (let i = 0; i < fields.length; i++) {
+                embed.addField(fields[i].name, fields[i].value, fields[i].inline);
+            }
+        }
+        return embed;
+    }
     setSteamId(message, args) {
         this.steamid = args[0];
-        const embed = constructEmbed(`${this.name}, your steam ID has been set: ${args[0]}`, '', null, null);
-        exportJson(message.client.memberinfo, 'memberdata');
+        const embed = this.constructEmbed(`${this.name}, your steam ID has been set: ${args[0]}`, '', null, null);
+        MemberData.findByIdAndUpdate(this._id, { steamid: args[0] });
         return message.channel.send(embed);
     }
     giveWarning(message, reason) {
         this.warnings++;
         this.warningreasons = this.warningreasons.concat(`${message.member.displayName} issued a WARNING:\n*${reason}*  (${new Date().toLocaleString()})`);
-        const embed = constructEmbed(`${this.name}, you received a warning.`, `Reason: ${reason}`, null, null);
-        exportJson(message.client.memberinfo, 'memberdata');
+        const embed = this.constructEmbed(`${this.name}, you received a warning.`, `Reason: ${reason}`, null, null);
+        MemberData.findByIdAndUpdate(this._id, { warningreasons: this.warningreasons, warnings: this.warnings });
         return message.channel.send(embed);
     }
     displayWarnings(message, member) {
@@ -41,9 +56,9 @@ module.exports = class MemberInfo {
             img: null,
             inline: false,
         });
-        const embed = constructEmbed(`${this.name}'s Warnings (${this.warnings}):`, reasons, null, embedFields, member.user.displayAvatarURL);
-        embed.setFooter(`Steam ID: ${this.steamid}`);
-        exportJson(message.client.memberinfo, 'memberdata');
+        const embed = this.constructEmbed(`${this.name}'s Warnings (${this.warnings}):`, reasons, null, embedFields, member.user.displayAvatarURL);
+        embed.setFooter(`Discord ID: ${this._id} | Steam ID: ${this.steamid}`);
+        embed.setTimestamp(message.createdAt);
         return message.channel.send(embed);
 
     }
@@ -73,18 +88,16 @@ module.exports = class MemberInfo {
         }
         await (specifiedMember.addRole(muterole.id));
         try {
-            let embed = constructEmbed('', `<@${specifiedMember.id}> has been muted for ${ms(ms(mutetime))} for ${reason}`, null, null);
+            const embed = this.constructEmbed('', `<@${specifiedMember.id}> has been muted for ${ms(ms(mutetime))} for ${reason}`, null, null);
             message.channel.send(embed);
-
+            MuteData.findByIdAndUpdate(this._id, { time: Date.now() + ms(mutetime) }, { upsert : true }).then(()=> console.log('added mute to database'));
             setTimeout(function() {
                 specifiedMember.removeRole(muterole.id);
-                embed = constructEmbed('', `<@${specifiedMember.id}> has been unmuted.`, null, null);
-                message.channel.send(embed);
             }, ms(mutetime));
         }
         catch(e) {
             console.log(e.stack);
         }
-        exportJson(message.client.memberinfo, 'memberdata');
+        MemberData.findByIdAndUpdate(this._id, { mutecount: this.mutecount, mutehistory: this.mutehistory }).then(() => console.log('updated mute history'));
     }
 };

@@ -9,6 +9,7 @@ module.exports = {
 	description: 'Shows the Reincarnation map.',
 	usage: '',
 	cooldown: 5,
+	modOnly: false,
 	execute(message) {
 		message.delete();
 		const embed = constructEmbed('', '', MAP, null);

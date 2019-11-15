@@ -2,7 +2,7 @@ const Jimp = require("jimp");
 const rp = require('request-promise');
 const c = require('../util/constants.js')
 const {
-    steamLookup
+    steamLookup,
 } = require('../util/utilities.js');
 const {
     formatDungeonName,
@@ -11,34 +11,13 @@ module.exports = {
     name: 'ranks',
     description: 'Display fastest dungeon times',
     aliases: ['rank', 'dungeon', 'highscore'],
-    usage: '\n\n**.ranks [dungeon name]**\n(shows the best time of any player size)\n\nor\n\n**.ranks [dungeon name] [qty]**\n([qty] must be between 1-6)\n(Shows the fastest time with [qty] players in [dungeon name]\n\n' + `DUNGEON NAMES:
-
-    butchers_sepulcher
-    desolate_stockade
-    abandoned_mine
-    centaur_arena
-    wolfs_cave
-    harpy_peak
-    dire_sanctuary
-    satyr_seer
-    satyr_conjuror
-    satyr_demon
-    satyr_lord
-    ice_lair
-    underpass
-    jungle_temple
-    sunken_city
-    lost_woods
-    desert_pyramid
-    magma_core
-    trial_of_flame
-    abyssal_stronghold`,
+    usage: '\n.ranks [dungeon name] | (shows the best time of any player size)\nor\n.ranks [dungeon name] [qty] | Shows the best time with [1-6] players\n\n' + `DUNGEON NAMES:
+butchers_sepulcher, desolate_stockade, abandoned_mine, centaur_arena, wolfs_cave, harpy_peak, dire_sanctuary, satyr_seer, satyr_conjuror, satyr_demon, satyr_lord, ice_lair, underpass, jungle_temple, sunken_city, lost_woods,desert_pyramid, magma_core, trial_of_flame, abyssal_stronghold`,
     cooldown: 5,
     args: true,
+    modOnly: false,
     execute(message, args) {
-        message.delete();
         const dungeonName = args[0];
-
         //Determins parameters for dungeon quantity
         if (!c.DUNGEON_NAMES.includes(dungeonName)) return message.reply('Invalid dungeon name.');
         switch (args[1]) {
@@ -92,6 +71,7 @@ module.exports = {
             .then(function (apiResponse) {
                 const data = apiResponse
                 const highScore = data[0];
+                if(highScore === undefined) return(message.reply('No data for that dungeon'));
                 let images = [];
                 let jimps = [];
                 let fonts = [Jimp.FONT_SANS_128_WHITE, Jimp.FONT_SANS_32_WHITE, Jimp.FONT_SANS_16_WHITE];
@@ -103,7 +83,6 @@ module.exports = {
                 rp(steamLookup(JSON.stringify(steamIds)))
                     .then(function (steamData) {
                         steamData.forEach(steamPlayer => (playerNames.push(steamPlayer.personaname)));
-
                         template = 'C:/Users/Alec PC/Documents/GitHub/Reincarnation/Reincarnation-Bot/src/data/images/templates/dungeon_ranks_template.png';
                         Jimp.read(template)
                             .then((loadedImage) => {
@@ -148,14 +127,17 @@ module.exports = {
                                                 heroImages = data.splice(1);
                                                 const startXpos = (316.5 - ((96.25 * playerNames.length) / 2))
                                                 heroImages.forEach((jimpPromises) => {
+                                                    const regex = /[^a-zA-Z0-9 _-]/g;
+                                                    regex.test(playerNames[iu]) ? newName = steamIds[iu].toString() : newName = playerNames[iu];
+                                                    newName.length > 11 ? newName = newName.slice(0, 11) : newName;
                                                     jimpPromises.resize(87, 50);
                                                     baseImage.composite(jimpPromises, (startXpos + xPosition), 160); // old y - 227
                                                     baseImage.print(
                                                         fonts[2],
-                                                        startXpos + xPosition + ((87 - (playerNames[iu].length * 8.7)) / 2),
+                                                        startXpos + xPosition + ((87 - (newName.length * 8.7)) / 2),
                                                         218, //old y = 285 
                                                         {
-                                                            text: playerNames[iu].toString(),
+                                                            text: newName.toString(),
                                                         });
                                                     iu++;
                                                     tester = 0;
