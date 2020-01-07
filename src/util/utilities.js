@@ -87,7 +87,7 @@ const allCompleteCallback = () => {
 let classesCreated = 0;
 
 exports.getAllGuildMembers = async (guild) => {
-    mongoose.connect(`mongodb+srv://alec_fox:${process.env.MONOGOBD_PW}@cluster0-q40w5.mongodb.net/Reincarnation?retryWrites=true&w=majority`, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false });
+    mongoose.connect(`mongodb+srv://alec_fox:${process.env.MONOGOBD_PW}@cluster0-q40w5.mongodb.net/Reincarnation?retryWrites=true&w=majority`, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false }).then(()=> console.log('Connected to MongoDB.')).catch(err => console.log(err));
     const allMembers = await guild.fetchMembers();
     function generateAllMembersInfo(member, memberId, allMembersInfoMap) {
         MemberData.findById(memberId).lean().exec(function(err, foundMember) {

@@ -18,7 +18,7 @@ butchers_sepulcher, desolate_stockade, abandoned_mine, centaur_arena, wolfs_cave
     modOnly: false,
     execute(message, args) {
         const dungeonName = args[0];
-        //Determins parameters for dungeon quantity
+        //Determines parameters for dungeon quantity
         if (!c.DUNGEON_NAMES.includes(dungeonName)) return message.reply('Invalid dungeon name.');
         switch (args[1]) {
             case '1':
@@ -45,7 +45,7 @@ butchers_sepulcher, desolate_stockade, abandoned_mine, centaur_arena, wolfs_cave
 
         /** Sends image to channel
          * 
-         * @param {obejct} msg 
+         * @param {object} msg 
          */
         sendStats = msg => {
             msg.channel.send({
@@ -71,7 +71,7 @@ butchers_sepulcher, desolate_stockade, abandoned_mine, centaur_arena, wolfs_cave
             .then(function (apiResponse) {
                 const data = apiResponse
                 const highScore = data[0];
-                if(highScore === undefined) return(message.reply('No data for that dungeon'));
+                if (highScore === undefined) return (message.reply('No data for that dungeon'));
                 let images = [];
                 let jimps = [];
                 let fonts = [Jimp.FONT_SANS_128_WHITE, Jimp.FONT_SANS_32_WHITE, Jimp.FONT_SANS_16_WHITE];
