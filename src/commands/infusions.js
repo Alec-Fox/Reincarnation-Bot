@@ -1,9 +1,3 @@
-const {
-	constructEmbed,
-} = require('../util/utilities.js');
-const {
-	INFUSIONS,
-} = require('../util/constants.js');
 module.exports = {
 	name: 'infusions',
 	description: 'Shows the Infusions for cooking.',
@@ -13,7 +7,8 @@ module.exports = {
 	modOnly: false,
 	execute(message) {
 		message.delete();
-		const embed = constructEmbed('', '', INFUSIONS, null);
-		return message.channel.send(embed);
+		return message.channel.send({
+			file: 'C:/Users/Alec PC/Documents/GitHub/Reincarnation/Reincarnation-Bot/src/data/images/infomatics/infusions.png',
+		});
 	},
 };
