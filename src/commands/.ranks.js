@@ -1,6 +1,12 @@
-const Jimp = require("jimp");
+const {
+    DEV_ID,
+} = require('../util/constants.js');
+const Canvas = require('canvas');
+const {
+    Attachment,
+} = require('discord.js');
 const rp = require('request-promise');
-const c = require('../util/constants.js')
+const c = require('../util/constants.js');
 const {
     steamLookup,
 } = require('../util/utilities.js');
@@ -18,7 +24,8 @@ butchers_sepulcher, desolate_stockade, abandoned_mine, centaur_arena, wolfs_cave
     modOnly: false,
     execute(message, args) {
         const dungeonName = args[0];
-        //Determines parameters for dungeon quantity
+        let dungQty;
+        // Determines parameters for dungeon quantity
         if (!c.DUNGEON_NAMES.includes(dungeonName)) return message.reply('Invalid dungeon name.');
         switch (args[1]) {
             case '1':
@@ -43,116 +50,89 @@ butchers_sepulcher, desolate_stockade, abandoned_mine, centaur_arena, wolfs_cave
                 dungQty = '';
         }
 
-        /** Sends image to channel
-         * 
-         * @param {object} msg 
-         */
-        sendStats = msg => {
-            msg.channel.send({
-                file: "C:/Users/Alec PC/Documents/GitHub/Reincarnation/Reincarnation-Bot/src/data/images/templates/templatenew.png"
-            });
-        }
-
-        /**API request options for Dungeon Top 10
-         * 
+        /** API request options for Dungeon Top 10
+         *
          * @param {string} dungeonName - Name of the dungeon to lookup
          */
-        determineReqOptions = dungeonName => {
+        const determineReqOptions = () => {
             return {
                 uri: `http://reincarnationrpg.com:3000/api/dungeons/top10?dungeon_name=${dungeonName}${dungQty}&json=true`,
                 headers: {
-                    'User-Agent': 'Request-Promise'
+                    'User-Agent': 'Request-Promise',
                 },
                 json: true,
-            }
-        }
+            };
+        };
+
+        const applyText = (canvas, size) => {
+            const ctx = canvas.getContext('2d');
+            ctx.textAlign = 'center';
+            ctx.font = `${size}px sans-serif`;
+            return ctx.font;
+        };
+
+        const applyNameText = (canvas, text) => {
+            const textInfo = {};
+            const ctx = canvas.getContext('2d');
+            let fontSize = 17;
+            ctx.textAlign = 'left';
+            ctx.font = `${fontSize}px sans-serif`;
+            do {
+                ctx.font = `${fontSize -= 1}px sans-serif`;
+            } while (ctx.measureText(text).width > 95);
+            textInfo.font = ctx.font;
+            textInfo.width = ctx.measureText(text).width;
+
+            return textInfo;
+        };
 
         rp(determineReqOptions(dungeonName))
-            .then(function (apiResponse) {
-                const data = apiResponse
+            .then(function(apiResponse) {
+                const data = apiResponse;
                 const highScore = data[0];
                 if (highScore === undefined) return (message.reply('No data for that dungeon'));
-                let images = [];
-                let jimps = [];
-                let fonts = [Jimp.FONT_SANS_128_WHITE, Jimp.FONT_SANS_32_WHITE, Jimp.FONT_SANS_16_WHITE];
-                let jimpFonts = [];
-                steamIds = [];
-                playerNames = [];
+                const images = [];
+                const steamIds = [];
+                const playerNames = [];
                 const dungTime = Math.round(highScore.TimeTaken * 1000) / 1000;
                 highScore.Players.forEach(player => steamIds.push(player.account_id));
                 rp(steamLookup(JSON.stringify(steamIds)))
-                    .then(function (steamData) {
+                    .then(async function(steamData) {
                         steamData.forEach(steamPlayer => (playerNames.push(steamPlayer.personaname)));
-                        template = 'C:/Users/Alec PC/Documents/GitHub/Reincarnation/Reincarnation-Bot/src/data/images/templates/dungeon_ranks_template.png';
-                        Jimp.read(template)
-                            .then((loadedImage) => {
-                                fonts.forEach(font => jimpFonts.push(Jimp.loadFont(font)));
-                                Promise.all(jimpFonts).then((fonts) => {
-                                        return Promise.all(jimpFonts);
-                                    }).then((fonts) => {
-                                        loadedImage.print( //prints dungeon name onto template image
-                                            fonts[0],
-                                            15,
-                                            33, {
-                                                text: formatDungeonName(dungeonName),
-                                                alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER,
-                                            },
-                                            640,
-                                            400
-                                        );
-                                        loadedImage.print( //prints dungeon name onto template image
-                                            fonts[1],
-                                            1,
-                                            273, { //old y = 130
-                                                text: `${dungTime.toString()} secs`,
-                                                alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER,
-                                            },
-                                            640,
-                                            400
-                                        );
-                                        loadedImage.write('C:/Users/Alec PC/Documents/GitHub/Reincarnation/Reincarnation-Bot/src/data/images/templates/templatenew.png', () => {
 
-                                            images.push('C:/Users/Alec PC/Documents/GitHub/Reincarnation/Reincarnation-Bot/src/data/images/templates/templatenew.png');
-                                            highScore.Players.forEach((player) => {
-                                                let heroName = c.HERO_LIST[player.hero];
-                                                images.push(`C:/Users/Alec PC/Documents/GitHub/Reincarnation/Reincarnation-Bot/src/data/images/portraits/${heroName}.png`);
-                                            });
-                                            images.forEach(image => jimps.push(Jimp.read(image)));
-                                            Promise.all(jimps).then((data) => {
-                                                return Promise.all(jimps);
-                                            }).then((data) => {
-                                                let xPosition = 0;
-                                                let iu = 0;
-                                                baseImage = data[0];
-                                                heroImages = data.splice(1);
-                                                const startXpos = (316.5 - ((96.25 * playerNames.length) / 2))
-                                                heroImages.forEach((jimpPromises) => {
-                                                    const regex = /[^a-zA-Z0-9 _-]/g;
-                                                    regex.test(playerNames[iu]) ? newName = steamIds[iu].toString() : newName = playerNames[iu];
-                                                    newName.length > 11 ? newName = newName.slice(0, 11) : newName;
-                                                    jimpPromises.resize(87, 50);
-                                                    baseImage.composite(jimpPromises, (startXpos + xPosition), 160); // old y - 227
-                                                    baseImage.print(
-                                                        fonts[2],
-                                                        startXpos + xPosition + ((87 - (newName.length * 8.7)) / 2),
-                                                        218, //old y = 285 
-                                                        {
-                                                            text: newName.toString(),
-                                                        });
-                                                    iu++;
-                                                    tester = 0;
-                                                    xPosition += 100;
-                                                });
-                                                baseImage.write('C:/Users/Alec PC/Documents/GitHub/Reincarnation/Reincarnation-Bot/src/data/images/templates/templatenew.png', () => {
-                                                    sendStats(message);
-                                                });
-                                            });
-                                        });
-                                    })
-                                    .catch((err) => {
-                                        console.error(err);
-                                    });
-                            })
+                        highScore.Players.forEach((player) => {
+                            const heroName = c.HERO_LIST[player.hero];
+                            images.push(`C:/Users/Alec PC/Documents/GitHub/Reincarnation/Reincarnation-Bot/src/data/images/portraits/${heroName}.png`);
+                        });
+
+                        const canvas = Canvas.createCanvas(633, 356);
+                        const ctx = canvas.getContext('2d');
+                        const background = await Canvas.loadImage('C:/Users/Alec PC/Documents/GitHub/Reincarnation/Reincarnation-Bot/src/data/images/templates/dungeon_ranks_template.png');
+                        ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+                        ctx.strokeStyle = '#74037b';
+                        ctx.strokeRect(0, 0, canvas.width, canvas.height);
+                        let xPosition = 0;
+                        let iu = 0;
+                        const startXpos = (316.5 - ((96.25 * playerNames.length) / 2));
+                        ctx.font = applyText(canvas, 50);
+                        ctx.fillStyle = '#ffffff';
+                        ctx.fillText(`${formatDungeonName(dungeonName)}`, canvas.width / 2, 90);
+                        ctx.font = applyText(canvas, 40);
+                        ctx.fillText(`${dungTime} secs`, canvas.width / 2, 313);
+                        images.forEach(async (heroPicture) => {
+                            const loadedHeroPicture = await Canvas.loadImage(heroPicture);
+                            ctx.drawImage(loadedHeroPicture, (startXpos + xPosition), 150, 95, 55);
+                            const textInfo = applyNameText(canvas, `${playerNames[iu]}`);
+                            ctx.font = textInfo.font;
+                            ctx.fillText(`${playerNames[iu]}`, startXpos + xPosition + ((95 - (textInfo.width)) / 2), 220);
+                            xPosition += 100;
+                            iu++;
+                            if(iu === images.length) {
+                                const attachment = new Attachment(canvas.toBuffer(), 'ranksImage.png');
+                                message.channel.send(attachment);
+                            }
+                        });
+
                     });
             })
             .catch((err) => {
